@@ -1,0 +1,21 @@
+2023-12-15 18:56:04,178:INFO:i: 199
+2023-12-15 18:56:04,179:INFO:ma: 3
+2023-12-15 18:56:04,179:INFO:mna: 0
+2023-12-15 18:56:04,179:INFO:a_means: [<pp_mix.src.proto.proto.EigenVector object at 0x7f7c58295dd0>, <pp_mix.src.proto.proto.EigenVector object at 0x7f7c5829b290>, <pp_mix.src.proto.proto.EigenVector object at 0x7f7c5829b310>]
+2023-12-15 18:56:04,179:INFO:na_means: []
+2023-12-15 18:56:04,179:INFO:a_precs: [<pp_mix.src.proto.proto.EigenMatrix object at 0x7f7c58295c50>, <pp_mix.src.proto.proto.EigenMatrix object at 0x7f7c5829b2d0>, <pp_mix.src.proto.proto.EigenMatrix object at 0x7f7c5829b350>]
+2023-12-15 18:56:04,179:INFO:na_precs: []
+2023-12-15 18:56:04,179:INFO:a_jumps: [<pp_mix.src.proto.proto.EigenVector object at 0x7f7c5829b390>]
+2023-12-15 18:56:04,179:INFO:na_jumps: [<pp_mix.src.proto.proto.EigenVector object at 0x7f7c5829b3d0>]
+2023-12-15 18:56:04,179:INFO:clus_alloc: [array([1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 2, 0, 2, 2, 0, 2, 2, 2, 2,
+       1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 0, 0, 1, 2, 1, 0, 1, 2, 0, 0, 2,
+       1, 1, 1, 0, 0, 1, 2, 1, 2, 0, 0, 1, 0, 0, 0, 2, 1, 1, 0, 1, 2, 1,
+       1, 0, 0, 0, 1, 2, 2, 2, 1, 0, 2, 1, 1, 2, 1, 2, 1, 0, 1, 1, 0, 1,
+       1, 2, 0, 0, 0, 1, 1, 2, 2, 0, 0, 1, 1, 1, 0, 2, 1, 1, 1, 1, 0, 1,
+       0, 1, 1, 1, 1, 2, 0, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 2, 2, 1,
+       2, 2, 1, 0, 2, 1, 1, 2, 1, 2, 0, 0, 2, 1, 2, 2, 2, 2, 0, 1, 0, 0,
+       0, 2, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0, 2, 1, 0, 1, 0, 2, 0, 1,
+       1, 0, 1, 0, 2, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1, 2, 2, 2, 0, 1, 0, 1,
+       1, 0])]
+2023-12-15 18:56:04,179:INFO:u: 131.21897792596207
+2023-12-15 18:56:04,179:INFO:pp_state: <pp_mix.src.proto.proto.PPState object at 0x7f7c58295e50>

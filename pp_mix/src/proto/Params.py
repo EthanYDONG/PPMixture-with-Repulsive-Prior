@@ -104,7 +104,11 @@ class DPPParams():
         self.s = 0
         self.fixed_param = False
 
-
+class ExponParams():
+    def __init__(self) -> None:
+        self.scale = 0
+        self.C = 0
+        self.D = 0
 
 class Params():
     def __init__(self):
@@ -131,6 +135,9 @@ class Params():
         self.has_gamma_prec = False
         self.gamma_prec = None
         
+        self.has_expon_prec = False
+        self.expon_prec = None
+
         self.init_n_clus = 10
     
         

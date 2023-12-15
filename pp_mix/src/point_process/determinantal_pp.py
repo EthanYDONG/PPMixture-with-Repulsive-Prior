@@ -45,7 +45,6 @@ class DeterminantalPP(BasePP):
     def papangelou(self, xi, x, log=True):
         if xi.shape[1] != self.dim:
             xi = xi.T
-
         all_points = np.vstack([xi, x])
         out = self.dens(all_points) - self.dens(x)
 

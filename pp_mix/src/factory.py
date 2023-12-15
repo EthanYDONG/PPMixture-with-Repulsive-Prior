@@ -7,6 +7,7 @@ from .jump.gamma import  GammaJump
 from .precs.gamma import GammaPrec
 from .precs.fixed_prec import FixedPrec,FixedUnivPrec
 from .precs.wishart import Wishart
+from .precs.exponential import Expon
 
 def make_pp(params):
 
@@ -59,6 +60,8 @@ def make_prec(params):
         prec = make_fixed_prec(params.fixed_univ_pre)
     elif (params.has_gamma_prec):
         prec = make_gamma_prec(params.gamma_prec)
+    elif (params.has_expon_prec):
+        prec = make_expon_prec(params.expon_prec)
     
     return prec
 
@@ -81,3 +84,5 @@ def make_fixed_prec(fixed_univ_prec_params):
 def make_gamma_prec(gamma_param):
   return GammaPrec(gamma_param.alpha, gamma_param.beta)
 
+def make_expon_prec(expon_param):
+    return Expon(expon_param.scale, expon_param.C, expon_param.D)

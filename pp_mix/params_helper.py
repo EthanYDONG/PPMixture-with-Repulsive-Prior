@@ -35,6 +35,9 @@ def make_params(pp_params, prec_params, jump_params=None):
     elif isinstance(prec_params, FixedUnivPrecParams):
         params.fixed_univ_prec = prec_params
         params.has_fixed_multi_prec = True
+    elif isinstance(prec_params, ExponParams):
+        params.expon_prec = prec_params
+        params.has_expon_prec = True
     else:
         #logging.error("prec_params type not valid")
         print('prec_params type not valid')

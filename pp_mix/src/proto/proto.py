@@ -9,7 +9,7 @@ class EigenVector:
         self.size = len(data)
         self.data = data
     
-    # 自定义extend函数，表示在EigenVector中增加元素
+    # 自定义extend函数，在EigenVector中增加元素
     def extend_EigenVector(self, value):
         self.data.extend(value)
         self.size += len(value)

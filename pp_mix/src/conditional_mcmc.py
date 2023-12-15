@@ -7,10 +7,12 @@ from scipy.stats import multinomial
 from scipy.stats import dirichlet
 from scipy.stats import multivariate_normal,norm
 from .conditional_mcmc_imp import ConditionalMCMC
+from .conditional_mcmc_imp import ConditionalMCMC_model
 from .proto import Params as params
 from .proto import proto as proto
 from .point_process.strauss_pp import StraussPP
 from .point_process.nrep_pp import NrepPP
+# from simulation_all import HawkesModel
 
 #### Some problems in BernoulliConditionalMCMC
 
@@ -178,6 +180,118 @@ class UnivariateConditionalMCMC(ConditionalMCMC):
         return len(datum)
     
 
+class hawkesmcmc(ConditionalMCMC_model):
+    def __init__(self, pp_mix, h, g, params):
+        #super().__init__(BaseMultiPrec, PrecMat, VectorXd)
+        super().__init__( pp_mix, h, g, params)
+        self.pp_mix = pp_mix
+        self.jump = h
+        self.prec = g  # A coefficient tensor
+        self.params = params
+        self.min_proposal_sigma = 0.1
+        self.max_proposal_sigma = 2.0
+
+    
+
+    def initialize_allocated_means(self, ranges):
+        print('initialize_allocated_means multi')
+        init_n_clus = self.params.init_n_clus
+        if init_n_clus == 0:
+            init_n_clus = 5
+        # if init_n_clus >= self.ndata:
+        #     self.a_means = np.array([datum.transpose() for datum in self.data])
+        # else:
+        #     a_means_index = np.arange(self.ndata)
+        #     np.random.shuffle(a_means_index)
+        #     # k * event 两个for 
+        #     self.a_means = np.array([self.data[index] for index in a_means_index[:init_n_clus]])
+
+        samples = np.array([np.random.uniform(low, high, init_n_clus) for low, high in ranges])
+        # event_type * k 每一行代表一个事件的k个采样值
+        print('means_init_done',samples.shape)
+        self.a_means = samples.T
+
+
+    def compute_grad_for_clus(self, clus, mean):
+        grad = np.zeros(self.dim)
+        for datum in self.data_by_clus[clus]:
+            grad += datum - mean
+        # TODO FIXME
+        # grad += self.a_precs[clus].get_prec() * (datum - mean)
+        return grad
+    
+    def print_data_by_clus(self, clus):
+        for d in self.data_by_clus[clus]:
+            print(d.transpose())
+    
+
+    def get_state_as_proto(self):
+        out = proto.MultivariateMixtureState()
+        out.ma = self.a_means.shape[0]
+        out.mna = self.na_means.shape[0]
+        out.mtot = self.a_means.shape[0] + self.na_means.shape[0]
+
+        for i in range(self.a_means.shape[0]):
+            out.a_means.append(proto.EigenVector(self.a_means[i].transpose()))
+            out.a_precs.append(proto.EigenMatrix(self.a_precs[i]))
+
+        for i in range(self.na_means.shape[0]):
+            out.na_means.append(proto.EigenVector(self.na_means[i].transpose()))
+            out.na_precs.append(proto.EigenMatrix(self.na_precs[i]))
+
+        out.a_jumps.append(proto.EigenVector(self.a_jumps))
+        out.na_jumps.append(proto.EigenVector(self.na_jumps))
+
+        out.clus_alloc.append(self.clus_alloc)
+
+        out.u = self.u
+
+        
+        if isinstance(self.pp_mix,StraussPP):
+            # pp_params = proto.StraussState()
+            out.pp_state = self.pp_mix.get_state_as_proto()
+            #out.pp_state = pp_params
+        elif isinstance(self.pp_mix,NrepPP):
+            #pp_params = proto.NrepState()
+            out.pp_state = self.pp_mix.get_state_as_proto()
+            #out.pp_state = pp_params
+
+        return out
+    
+    def lpdf_given_clus(self, datum, mean, prec):
+        mvn = multivariate_normal(mean=mean, cov=np.linalg.inv(prec))
+        return mvn.logpdf(datum)
+        
+
+    # def lpdf_given_clus_multi(self, datum, mean, prec):
+    #     mean = mean.reshape(mean.shape[1])
+    #     mvn = multivariate_normal(mean=mean, cov=np.linalg.inv(prec))
+    #     return np.sum(mvn.logpdf(datum))
+
+    def lpdf_given_clus_multi(self,cluster_index):
+        pass
+                
+
+    def set_dim(datum):
+        return len(datum)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class BernoulliConditionalMCMC():
     def __init__(self, pp_mix, h, g, params):
@@ -244,5 +358,4 @@ class BernoulliConditionalMCMC():
             out.pp_state = pp_params
 
         return out
-
 

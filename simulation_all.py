@@ -1,0 +1,217 @@
+
+import numpy as np
+import pickle
+import time
+import matplotlib.pyplot as plt
+from scipy.stats import multivariate_normal as mvn
+from scipy.stats import skewnorm
+from scipy.stats import norm
+from scipy.interpolate import griddata
+from pp_mix.src.proto.proto import *
+from pp_mix.src.proto.Params import *
+from pp_mix.interface import ConditionalMCMC_gauss
+from pp_mix.interface import ConditionalMCMC_hks
+from pp_mix.params_helper import *
+from sklearn.datasets import make_blobs  # 用于创建模拟数据
+
+from scipy.sparse import csr_matrix
+from hkstools.hksimulation.Simulation_Branch_HP import Simulation_Branch_HP
+from hkstools.Initialization_Cluster_Basis import Initialization_Cluster_Basis
+from hkstools.Learning_Cluster_Basis import Learning_Cluster_Basis
+from hkstools.Estimate_Weight import Estimate_Weight
+from hkstools.Loglike_Basis import Loglike_Basis
+from hkstools.DistanceSum_MPP import DistanceSum_MPP
+from hkstools.Kernel_Integration import Kernel_Integration
+from hkstools.hksimulation.Kernel import Kernel
+from HawkesModel import HawkesModel
+
+np.random.seed(0)
+
+###################simulation hks data#######################
+options = {
+    'N': 100, 'Nmax': 100, 'Tmax': 50, 'tstep': 0.1,
+    'dt': [0.1], 'M': 250, 'GenerationNum': 10
+}
+D = 3   # event type个数
+K = 2  # cluster个数
+nTest = 5
+nSeg = 5
+nNum = options['N'] / nSeg
+mucenter = np.random.rand(D) / D
+mudelta = 2
+# First01 cluster: Hawkes process with exponential kernel
+
+print('01 Simple exponential kernel')
+para1 = {'kernel': 'exp', 'landmark': [0]}
+para1['mu'] = mucenter+mudelta
+L = len(para1['landmark'])
+para1['A'] = np.zeros((D, D, L))
+for l in range(1, L + 1):
+    para1['A'][:, :, l - 1] = (0.7**l) * np.random.rand(D,D)
+eigvals_list = []
+eigvecs_list = []
+for l in range(L):
+    eigvals, eigvecs = np.linalg.eigh(para1['A'][:, :, l])
+    eigvals_list.append(eigvals)
+    eigvecs_list.append(eigvecs)
+all_eigvals = np.concatenate(eigvals_list)
+max_eigval = np.max(all_eigvals)
+para1['A'] = 0.5 * para1['A'] / max_eigval
+para1['w'] = 0.5
+Seqs1 = Simulation_Branch_HP(para1, options)
+# First02 cluster: Hawkes process with exponential kernel
+print('02 Simple exponential kernel')
+para2 = {'kernel': 'exp', 'landmark': [0]}
+para2['mu'] = mucenter
+L = len(para2['landmark'])
+para2['A'] = np.zeros((D, D, L))
+for l in range(1, L + 1):
+    para2['A'][:, :, l - 1] = (0.7**l) * np.random.rand(D,D)
+eigvals_list = []
+eigvecs_list = []
+for l in range(L):
+    eigvals, eigvecs = np.linalg.eigh(para2['A'][:, :, l])
+    eigvals_list.append(eigvals)
+    eigvecs_list.append(eigvecs)
+all_eigvals = np.concatenate(eigvals_list)
+max_eigval = np.max(all_eigvals)
+para2['A'] = 0.5 * para2['A'] / max_eigval
+para2['w'] = 0.5
+Seqs2 = Simulation_Branch_HP(para2, options)
+
+
+'''
+# Second cluster: Hawkes process with Gaussian kernel
+print('Complicated gaussian kernel')
+para2 = {'kernel': 'gauss', 'landmark': np.arange(0, 13, 3)}
+para2['mu'] = np.random.rand(D) / D
+L = len(para2['landmark'])
+para2['A'] = np.zeros((D, D, L))
+for l in range(1, L + 1):
+    para2['A'][:, :, l - 1] = (0.9**l) * np.random.rand(D,D)
+para2['A'] = 0.25 * para2['A'] / np.max(np.abs(np.linalg.eigh(np.sum(para2['A'], axis=2))[0]))
+para2['A'] = np.reshape(para2['A'], (D, L, D))
+#import pdb;pdb.set_trace()
+para2['w'] = 1
+Seqs2 = Simulation_Branch_HP(para2, options)
+
+'''
+SeqsMix = Seqs1 + Seqs2
+
+
+#import pdb;pdb.set_trace()
+
+###################simulation gmm data#######################
+#dim = 2
+'''
+num_samples = 1000
+num_features = 2
+num_clusters = 4
+
+data, labels = make_blobs(n_samples=num_samples, n_features=num_features, centers=num_clusters, random_state=0)
+
+nrep = 10
+# dimrange = [1, 2, 3, 4, 5]
+# strauss_times = np.zeros((nrep, len(dimrange)))
+
+# nrange = [5, 10, 20]
+#dpp_times = np.zeros((nrep, len(dimrange), len(nrange)))
+
+'''
+"""
+###################strauss pp#######################
+# prec_params = WishartParams(
+#     nu=dim+1,identity=True, sigma=3, dim=dim)
+prec_params = WishartParams()
+# WishartParams.nu = dim+1
+# WishartParams.identity = True
+# WishartParams.sigma = 3
+# WishartParams.dim = dim
+prec_params.nu = dim+1
+prec_params.identity = True
+prec_params.sigma = 3
+prec_params.dim = dim
+# gamma_jump_params = GammaParams(alpha=1, beta=1)
+gamma_jump_params = GammaParams()
+gamma_jump_params.alpha = 1
+gamma_jump_params.beta = 1
+
+strauss_params = make_default_strauss(data)
+strauss_params.fixed_params = False
+strauss_sampler = ConditionalMCMC(
+    pp_params=strauss_params,
+    prec_params=prec_params,
+    jump_params=gamma_jump_params)
+start = time.time()
+strauss_sampler.run(0, 1000, 100, data, log_every = 1)
+strauss_times = time.time() - start
+
+print(strauss_sampler.chains)"""
+
+
+
+'''
+##########################FOR DPP GAUSSIAN######################
+prec_params = WishartParams()
+prec_params.nu = dim+1
+prec_params.identity = True
+prec_params.sigma = 3
+prec_params.dim = dim
+
+n =5
+dpp_params = DPPParams()
+dpp_params.nu = 2.0
+dpp_params.rho = 3.0
+dpp_params.N = n
+
+gamma_jump_params = GammaParams()
+gamma_jump_params.alpha = 1
+gamma_jump_params.beta = 1
+
+dpp_sampler = ConditionalMCMC(
+    pp_params=dpp_params, 
+    prec_params=prec_params,
+    jump_params=gamma_jump_params)
+start = time.time()
+dpp_sampler.run(0, 10000, 5, data)
+dpp_times = time.time() - start
+print("运行时间为",dpp_times)
+
+'''
+##########################FOR DPP HAWKES######################
+hakes_model = HawkesModel(SeqsMix,2,options['Tmax'])
+hakes_model.Initialization_Cluster_Basis()
+
+N = len(SeqsMix )
+D = np.zeros(N)
+for i in range(N):
+    D[i] = np.max(SeqsMix[i]['Mark'])
+D = int(np.max(D))+1
+dim = D
+
+prec_params = ExponParams()
+prec_params.C = D
+prec_params.D = hakes_model.M
+prec_params.scale = 1
+
+n =5
+dpp_params = DPPParams()
+dpp_params.nu = 2.0
+dpp_params.rho = 3.0
+dpp_params.N = n
+
+gamma_jump_params = GammaParams()
+gamma_jump_params.alpha = 1
+gamma_jump_params.beta = 1
+
+dpp_sampler = ConditionalMCMC_hks(
+    pp_params=dpp_params, 
+    prec_params=prec_params,
+    jump_params=gamma_jump_params,
+    init_n_clus=2)
+start = time.time()
+
+dpp_sampler.run(0, 10000, 5, SeqsMix, hakes_model)
+dpp_times = time.time() - start
+print("运行时间为",dpp_times)
+

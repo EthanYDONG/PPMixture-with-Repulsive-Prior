@@ -4,9 +4,9 @@ class PrecMat:
     def __init__(self, prec):
         self.prec = np.array(prec)
         self.var = None
-        self.cho_factor = np.linalg.cholesky(prec)
-        self.cho_factor_eval = self.cho_factor.T
-        self.log_det = 2 * np.log(np.diag(self.cho_factor_eval)).sum()
+        # self.cho_factor = np.linalg.cholesky(prec)
+        # self.cho_factor_eval = self.cho_factor.T
+        # self.log_det = 2 * np.log(np.diag(self.cho_factor_eval)).sum()
         self.univariate_val = None
         self.is_univariate = False
         self.compute_var = False
